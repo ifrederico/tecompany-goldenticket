@@ -13,7 +13,9 @@ const shiftPath = (d, dx, dy) => {
   return d.replace(/-?\d*\.?\d+/g, n => String(f(Number(n) + (axis++ % 2 ? dy : dx))));
 };
 
-export function randomSequence(seed) {
+// `skip` starts the sequence that many draws in.
+export function randomSequence(seed, skip = 0) {
+  seed += skip * 0x6D2B79F5;
   return () => {
     let t = seed += 0x6D2B79F5;
     t = Math.imul(t ^ t >>> 15, t | 1);
@@ -45,27 +47,44 @@ export function flake(x, y, radius, aspect, angle, rand) {
 }
 
 export function generateMaterial(config) {
-  const rand = randomSequence(config.seed);
-  const facets = config.facets.map(() => []);
-  const facetCount = Math.round(54000 * config.density);
-  const tileW = 379, tileH = 283;
-  for (let i = 0; i < facetCount; i++) {
-    const x = rand() * tileW, y = rand() * tileH;
-    const size = .38 + Math.pow(rand(), 2) * 2.1;
-    const tone = Math.floor(rand() * facets.length);
-    const angle = (rand() - .5) * Math.PI * .68;
-    const aspect = .2 + rand() * .52;
-    const d = flake(x, y, size, aspect, angle, rand);
-    facets[tone].push(d);
-    // Wrap crossing flakes to the opposite edge, preserving seamless joins.
-    const xs = [0], ys = [0];
-    if (x < size * 1.4) xs.push(tileW);
-    if (x > tileW - size * 1.4) xs.push(-tileW);
-    if (y < size * 1.4) ys.push(tileH);
-    if (y > tileH - size * 1.4) ys.push(-tileH);
-    for (const dx of xs) for (const dy of ys) if (dx || dy) facets[tone].push(shiftPath(d, dx, dy));
-  }
-  const facetPaths = facets.map((parts, i) => `<path fill="${config.facets[i]}" d="${parts.join('')}"/>`).join('');
+  // The flakes once filled a single 379 × 283 tile, 54,000 of them at 9 draws
+  // each. The rest of the paper continues the sequence where they left it, so
+  // it stays exactly as approved.
+  const rand = randomSequence(config.seed, Math.round(54000 * config.density) * 9);
+  const flakeRand = randomSequence(config.seed ^ 0x666c616b);
+  // Three small tiles at unrelated prime sizes, each with one family of tones
+  // at the original density. Together they repeat only every few million
+  // units. They are drawn dark, mid, then light, so light flakes always land
+  // on top, as they did in the single tile; the light specks show most and
+  // get the largest tile.
+  const tiles = [
+    { size: [199, 151], tones: [0, 1] },
+    { size: [181, 137], tones: [2, 3] },
+    { size: [263, 197], tones: [4, 5, 6] },
+  ];
+  const perUnit = 54000 * config.density / (379 * 283) / config.facets.length;
+  const facetPatterns = tiles.map(({ size: [tileW, tileH], tones }, layer) => {
+    const facets = config.facets.map(() => []);
+    const facetCount = Math.round(perUnit * tones.length * tileW * tileH);
+    for (let i = 0; i < facetCount; i++) {
+      const x = flakeRand() * tileW, y = flakeRand() * tileH;
+      const size = .38 + Math.pow(flakeRand(), 2) * 2.1;
+      const tone = tones[Math.floor(flakeRand() * tones.length)];
+      const angle = (flakeRand() - .5) * Math.PI * .68;
+      const aspect = .2 + flakeRand() * .52;
+      const d = flake(x, y, size, aspect, angle, flakeRand);
+      facets[tone].push(d);
+      // Wrap crossing flakes to the opposite edge, preserving seamless joins.
+      const xs = [0], ys = [0];
+      if (x < size * 1.4) xs.push(tileW);
+      if (x > tileW - size * 1.4) xs.push(-tileW);
+      if (y < size * 1.4) ys.push(tileH);
+      if (y > tileH - size * 1.4) ys.push(-tileH);
+      for (const dx of xs) for (const dy of ys) if (dx || dy) facets[tone].push(shiftPath(d, dx, dy));
+    }
+    const facetPaths = tones.map(i => `<path fill="${config.facets[i]}" d="${facets[i].join('')}"/>`).join('');
+    return `<pattern id="foil-facets-${layer + 1}" width="${tileW}" height="${tileH}" patternUnits="userSpaceOnUse" patternTransform="scale(${config.facetScale})">${facetPaths}</pattern>`;
+  });
 
   // A second, incommensurate tile breaks up recognizable repetitions. A full-
   // surface fiber layer below adds further non-repeating variation.
@@ -107,7 +126,7 @@ export function generateMaterial(config) {
     mottles.push(`<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(50 + rand() * 210)}" ry="${f(35 + rand() * 100)}" fill="url(#material-${i % 2 ? 'warm' : 'light'}-swelling)"/>`);
   }
 
-  const defs = `<pattern id="foil-facets" width="379" height="283" patternUnits="userSpaceOnUse" patternTransform="scale(${config.facetScale})">${facetPaths}</pattern>
+  const defs = `${facetPatterns.join('\n')}
 <pattern id="foil-micrograin" width="487" height="347" patternUnits="userSpaceOnUse" patternTransform="rotate(11)">${microPaths}</pattern>
 <pattern id="figure-ink-material" width="788" height="652" patternUnits="userSpaceOnUse"><rect width="788" height="652" fill="#412e22"/><g transform="scale(4)" opacity="${config.inkGrainOpacity}">${inkPath}</g></pattern>
 <pattern id="stamp-ink-material" width="788" height="652" patternUnits="userSpaceOnUse"><rect width="788" height="652" fill="#6d4d36"/><g transform="scale(4)" opacity="${config.inkGrainOpacity * 1.3}">${inkPath}</g></pattern>
@@ -115,7 +134,7 @@ export function generateMaterial(config) {
 <radialGradient id="material-warm-swelling"><stop stop-color="#694529" stop-opacity=".08"/><stop offset="1" stop-color="#694529" stop-opacity="0"/></radialGradient>`;
   const grain = `<g id="paper-grain" data-name="Procedural vector gold paper" clip-path="url(#paper-outline)">
 <g id="paper-tonal-swells">${mottles.join('')}</g>
-<g id="gold-foil-facets" opacity="${config.facetOpacity}">${rect} fill="url(#foil-facets)"/></g>
+<g id="gold-foil-facets" opacity="${config.facetOpacity}">${tiles.map((_, i) => `${rect} fill="url(#foil-facets-${i + 1})"/>`).join('')}</g>
 <g id="gold-micrograin" opacity="${config.micrograinOpacity}">${rect} fill="url(#foil-micrograin)"/></g>
 <g id="paper-fibers" opacity="${config.fiberOpacity}">${fiberPaths}</g>
 </g>`;

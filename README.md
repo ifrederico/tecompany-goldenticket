@@ -29,7 +29,7 @@ npm run dev
 
 ## How it works
 
-- **Paper.** `scripts/build-vector.mjs` grows the gold paper from a seed: 54,000 curved flakes, 44,000 grain strokes, 42,000 fibers, and faint tonal swells. Edit the seed, palette, density, scale, and opacity in `artwork/material.json`. Identical settings produce identical bytes.
+- **Paper.** `scripts/build-vector.mjs` grows the gold paper from a seed: curved flakes, 44,000 grain strokes, 42,000 fibers, and faint tonal swells. The flakes sit in three small repeating tiles at unrelated prime sizes (dark, mid, and light tones), so about 19,600 stored flakes cover the ticket without a visible repeat. Edit the seed, palette, density, scale, and opacity in `artwork/material.json`. Identical settings produce identical bytes.
 - **Foil.** `scripts/build-ticket.mjs` clips shared gold, white-gold, and silver gradients to the outlined artwork, so one reflection crosses the figure, stamp, border, and lettering continuously. At rest the inks are flat.
 - **Hidden print.** Two hairline teapots sit in the paper. One is under the speech balloon; the other, twice as large, is under the TÉ CO. stamp and runs off the bottom edge. Both show only in the light under the pointer.
 - **Sparkle.** 2,400 tiny glints in 12 facets twinkle faintly in the light as the ticket tilts. Each facet is split into tiles so only lit tiles near the light are drawn.

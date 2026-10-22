@@ -94,5 +94,17 @@ test('material seed changes the geometry and all paint references resolve locall
   assert.notEqual(a.grain, b.grain);
   const ids = new Set([...svg.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
   for (const match of svg.matchAll(/url\(#([^)]*)\)/g)) assert.ok(ids.has(match[1]), `Unresolved paint: ${match[1]}`);
-  assert.ok(ids.has('foil-facets') && ids.has('paper-fibers') && ids.has('gold-micrograin'));
+  assert.ok(ids.has('foil-facets-1') && ids.has('paper-fibers') && ids.has('gold-micrograin'));
+});
+
+test('flake tiles repeat at unrelated sizes and draw every tone from dark to light', () => {
+  const config = JSON.parse(readFileSync(new URL('../artwork/material.json', import.meta.url), 'utf8'));
+  const tiles = [...svg.matchAll(/<pattern id="foil-facets-\d" width="(\d+)" height="(\d+)"[^>]*>([\s\S]*?)<\/pattern>/g)];
+  assert.equal(tiles.length, 3);
+  const sizes = tiles.flatMap(tile => [Number(tile[1]), Number(tile[2])]);
+  assert.equal(new Set(sizes).size, sizes.length, 'No two tile sides match, so the tiles never line up');
+  const tones = tiles.flatMap(tile => [...tile[3].matchAll(/<path fill="([^"]+)"/g)].map(m => m[1]));
+  assert.deepEqual(tones, config.facets, 'Light flakes land on top of dark ones');
+  const fills = svg.match(/<g id="gold-foil-facets"[^>]*>([\s\S]*?)<\/g>/)[1].match(/url\(#[^)]+\)/g);
+  assert.deepEqual(fills, ['url(#foil-facets-1)', 'url(#foil-facets-2)', 'url(#foil-facets-3)']);
 });

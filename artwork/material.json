@@ -1,0 +1,12 @@
+{
+  "seed": 15102025,
+  "density": 1,
+  "base": ["#bc9775", "#c9a17e", "#c4a082", "#cdad8f"],
+  "facets": ["#896344", "#a57853", "#b88d67", "#cda782", "#dec4a7", "#e9e3d6", "#f2f0e9"],
+  "facetScale": 0.7,
+  "facetOpacity": 0.79,
+  "fiberOpacity": 0.48,
+  "fiberCount": 42000,
+  "inkGrainOpacity": 0.19,
+  "micrograinOpacity": 0.6
+}

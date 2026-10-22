@@ -1,0 +1,39 @@
+<main class="gallery" aria-label="Té Company golden ticket">
+  <div class="presentation">
+    <div class="stage" id="stage" tabindex="0" role="group" aria-label="Interactive golden ticket" aria-describedby="ticket-instructions">
+      <figure class="ticket" id="ticket">
+        <div class="ticket-face">
+          <!-- VECTOR_ARTWORK -->
+          <svg class="surface-light" id="surface-light" viewBox="0 0 1848 772" aria-hidden="true" focusable="false">
+            <defs>
+              <clipPath id="light-paper-outline"><path d="M1 1H1847V771H1Z" /></clipPath>
+              <linearGradient id="surface-sheen" gradientUnits="userSpaceOnUse" x1="222" y1="0" x2="1626" y2="772">
+                <stop stop-color="#fff0aa" stop-opacity="0" />
+                <stop offset=".35" stop-color="#fff2b9" stop-opacity=".17" />
+                <stop offset=".5" stop-color="#fffff5" stop-opacity=".48" />
+                <stop offset=".65" stop-color="#d7a01c" stop-opacity=".12" />
+                <stop offset="1" stop-color="#3c2600" stop-opacity="0" />
+              </linearGradient>
+              <radialGradient id="surface-spotlight" gradientUnits="userSpaceOnUse" cx="924" cy="386" r="887">
+                <stop stop-color="#fffdeb" stop-opacity=".65" />
+                <stop offset=".35" stop-color="#fad796" stop-opacity=".27" />
+                <stop offset="1" stop-color="#b48214" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <g clip-path="url(#light-paper-outline)">
+              <path d="M0 0H1848V772H0Z" fill="url(#surface-sheen)" />
+              <path d="M0 0H1848V772H0Z" fill="url(#surface-spotlight)" />
+            </g>
+          </svg>
+        </div>
+      </figure>
+    </div>
+    <div class="caption">
+      <p id="ticket-instructions"><span class="sr-only">Focus the ticket and use the arrow keys to tilt. Escape resets the view.</span></p>
+      <div class="ticket-actions">
+        <a class="vector-download" id="download-vector" href="./assets/golden-ticket.svg" download="golden-ticket.svg">Download SVG</a>
+        <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="true">Motion on</button>
+      </div>
+    </div>
+  </div>
+</main>

@@ -1,0 +1,14 @@
+{
+  "name": "golden-ticket",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build-ticket.mjs && node scripts/build-standalone.mjs && vite build",
+    "test": "node --test tests/ticket.test.mjs tests/vector-assets.test.mjs"
+  },
+  "dependencies": {
+    "vite": "6.4.2"
+  }
+}

@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #fefefc;
+  color: #5c5245;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+button { font: inherit; }
+
+.gallery {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 72px 40px;
+  background: #fefefc;
+  overflow: clip;
+}
+
+.presentation { width: min(728px, 100%, max(240px, calc((100svh - 230px) * 1848 / 772))); }
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1848 / 772;
+  perspective: none;
+  touch-action: pan-y pinch-zoom;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.stage:focus-visible { outline: 1px solid #8a7a5c; outline-offset: 12px; }
+.ticket {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  transform-style: flat;
+  transform: none;
+  /* A small, warm lift off the page: a crisp contact edge and a soft fall
+     below. While the ticket tilts, src/ticket.js stretches it toward the
+     lifted edge. */
+  box-shadow: 0 1px 1.5px rgba(60, 40, 20, .06), 0 2px 4px rgba(60, 40, 20, .07), 0 10px 22px -12px rgba(60, 40, 20, .22);
+}
+.stage[data-active="true"] { perspective: 975px; }
+.stage[data-active="true"] .ticket { will-change: transform; transform-style: preserve-3d; }
+.ticket-face { position: relative; width: 100%; height: 100%; }
+.stage[data-active="true"] .ticket-face { isolation: isolate; }
+/* At rest, drop the blended light layer so the ticket renders without compositing. */
+.stage:not([data-active="true"]) .surface-light { display: none; }
+.artwork {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.surface-light {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+}
+.caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  position: relative;
+  margin-top: 45px;
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: .025em;
+  color: #7d7466;
+}
+.caption p { margin: 0; }
+.ticket-actions { display: flex; align-items: center; gap: 22px; }
+/* The motion toggle is a button, styled as the same quiet text link. */
+.vector-download,
+.motion-toggle { color: #5c5245; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; white-space: nowrap; padding-block: 12px; }
+.motion-toggle { border: 0; background: none; padding-inline: 0; letter-spacing: inherit; cursor: pointer; }
+.vector-download:hover,
+.motion-toggle:hover { color: #2a231b; }
+.vector-download:focus-visible,
+.motion-toggle:focus-visible { outline: 2px solid #8a7a5c; outline-offset: 4px; }
+.motion-toggle:disabled { color: #9a9184; text-decoration: none; cursor: default; }
+.load-error { margin: 20vh auto; max-width: 28rem; padding: 24px; text-align: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (max-width: 600px) {
+  .gallery { padding: 48px 20px; }
+  .presentation { width: 100%; }
+  .caption { margin-top: 30px; font-size: 11px; gap: 12px; flex-wrap: wrap; }
+  .ticket-actions { width: 100%; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .surface-light { display: none; }
+}
+@media print {
+  :root, .gallery { background: white; }
+  .gallery { min-height: auto; padding: 0; }
+  .presentation { width: 100%; }
+  .ticket { transform: none !important; box-shadow: none !important; }
+  .caption, .surface-light { display: none; }
+}
